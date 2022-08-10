@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css" integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <title>E-Tugas</title>
+</head>
+
+<body>
+    <div style="text-align: center;"><h1>Aplikasi Pendaftaran Tugas</h1></div>
+    <div class="container">
+        
+        <div class="card">
+            <div class="card-header">Tambah Tugas</div>
+            <div class="card-body">
+                <form action="/add" method="post">
+                    <div class="form-group">
+                        <label for="Petugas">Petugas</label>
+                        <input type="text" class="form-control" name="petugas" placeholder="Masukan nama petugas">
+                    </div>
+                    <div class="form-group">
+                        <label for="Tugas">Tugas</label>
+                        <input type="text" class="form-control" name="tugas" placeholder="Masukan tugas">
+                    </div>
+                    <div class="form-group">
+                        <label for="TenggatWaktu">Tenggat Waktu</label>
+                        <input type="date" class="form-control" name="tenggatWaktu">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    &nbsp;
+    &nbsp;
+    <div class="container">
+        <div class="card">
+            <div class="card-header">Daftar Tugas</div>
+            <div class="card-body">
+                <table class="table table-borderless" id="tableDaftarTugas" style="cursor: pointer;">
+                    <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Petugas</th>
+                        <th scope="col">Tugas</th>
+                        <th scope="col">Tenggat Waktu</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Tindak Lanjut</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{range .Todos}}
+                        {{if .Completed}}
+                            <tr>
+                                <td><strike>{{.Id}}</strike></td>
+                                <td><strike>{{.Petugas}}</strike></td>
+                                <td><strike>{{.Tugas}}</strike></td>
+                                <td><strike>{{.TenggatWaktu}}</strike></td>
+                                <td>Selesai</td>
+                                <td>
+                                    <button id="tombolUpdate" class="btn btn-warning" disabled>Update</button>
+                                    <button class="btn btn-primary" disabled>Selesai</button>
+                                    <button class="btn btn-danger" disabled>Hapus</button>
+                                </td>
+                            </tr>
+                        {{else}}
+                            <tr>
+                                <td>{{.Id}}</td>
+                                <td>{{.Petugas}}</td>
+                                <td>{{.Tugas}}</td>
+                                <td>{{.TenggatWaktu}}</td>
+                                <td>Belum Selesai</td>
+                                <td>
+                                    <a ><button id="tombolUpdate" class="btn btn-warning" data-toggle="modal" data-target="#modalUpdate">Update</button></a>
+                                    <!-- <a ><button id="tombolUpdate" class="btn btn-warning" data-toggle="modal" data-target="#modalUpdate">Update</button></a> -->
+                                    <a href="/complete/{{ .Id}}"><button class="btn btn-primary">Selesai</button></a>
+                                    <a href="/delete/{{ .Id}}"><button class="btn btn-danger">Hapus</button></a>
+                                </td>
+                            </tr>
+                        {{end}}
+                    {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalUpdate" role="dialog" arialabelledby="exampleModal" aria-hidden="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="card">
+                        <div class="card-header">Update Tugas</div>
+                        <div class="card-body">
+                            <form action="/update" method="post" name='formUpdate'>
+                                <div class="form-group">
+                                    <label for="Id">Id</label>
+                                    <input type="text" class="form-control" name="updateId" id="updateId" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="Petugas">Petugas</label>
+                                    <input type="text" class="form-control" name="updatePetugas" id="updatePetugas">
+                                </div>
+                                <div class="form-group">
+                                    <label for="Tugas">Tugas</label>
+                                    <input type="text" class="form-control" name="updateTugas" id="updateTugas">
+                                </div>
+                                <div class="form-group">
+                                    <label for="TenggatWaktu">Tenggat Waktu</label>
+                                    <input type="date" class="form-control" name="updateTenggatWaktu" id="updateTenggatWaktu">
+                                </div>
+                                <button type="submit" class="btn btn-info">Simpan</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+</body>
+
+
+<script>
+    var table = document.getElementById("tableDaftarTugas");
+    if (table != null) {
+        for (var i = 0; i < table.rows.length; i++) {
+            table.rows[i].onclick = function() {
+                var tmpNilaiId = this.childNodes[1].innerHTML;
+                var tmpNilaiPetugas = this.childNodes[3].innerHTML;
+                var tmpNilaiTugas = this.childNodes[5].innerHTML;
+                var tmpNilaiTenggatWaktu = this.childNodes[7].innerHTML;
+                document.getElementById('updateId').value=tmpNilaiId;
+                document.getElementById('updatePetugas').value=tmpNilaiPetugas;
+                document.getElementById('updateTugas').value=tmpNilaiTugas;
+                document.getElementById('updateTenggatWaktu').value=tmpNilaiTenggatWaktu;
+                // console.log(updateId);
+                // console.log(tmpNilaiId);
+                // console.log(updatePetugas);
+                // console.log(tmpNilaiPetugas);
+                // console.log(updateTugas);
+                // console.log(tmpNilaiTugas);
+                // console.log(updateTenggatWaktu);
+                // console.log(tmpNilaiTenggatWaktu);
+            };
+        }
+    }
+    
+</script>
+
+</html>
